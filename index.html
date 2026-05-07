@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<title id="pageTitle">Hexa Forge</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+<script src="https://unpkg.com/tonweb@latest/dist/tonweb.js"></script>
+
+<script>
+if (window.Telegram && window.Telegram.WebApp) {
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+    try {
+        if (window.Telegram.WebApp.requestFullscreen) {
+            window.Telegram.WebApp.requestFullscreen();
+        }
+        window.Telegram.WebApp.setHeaderColor('#080F1D');
+        window.Telegram.WebApp.setBackgroundColor('#080F1D');
+    } catch(e) {}
+}
+</script>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+
+<style>
+/* DEEP FINTECH DARK TEMA (ƏSAS) */
+:root {
+  --bg-start: #080F1D;
+  --bg-end: #04080F;   
+  --card-bg: #111827;
+  --card-border: rgba(56, 189, 248, 0.25);
+  --text-light: #F8FAFC;
+  --text-dark: #F8FAFC;
+  --text-muted: #94A3B8;
+  --accent: #38BDF8;
+  --menu-bg: rgba(17, 24, 39, 0.95);
+  --progress-bg: rgba(56, 189, 248, 0.15);
+  --input-text: #F8FAFC; 
+  --input-bg: #1F2937;
+  
+  --btn-gradient-start: #2563EB; 
+  --btn-gradient-end: #1E40AF;   
+  --btn-shadow: rgba(37, 99, 235, 0.35); 
+}
+
+/* --- ÜMUMİ STİLLƏR --- */
+*{box-sizing:border-box;margin:0;padding:0; outline: none; -webkit-tap-highlight-color: transparent !important;}
+body{
+  font-family:'Inter',sans-serif;
+  background:linear-gradient(135deg,var(--bg-start),var(--bg-end));
+  background-attachment: fixed;
+  color:var(--text-dark);
+  min-height:var(--tg-viewport-stable-height, 100vh);
+  user-select:none;
+  -webkit-user-select:none;
+  padding-bottom: 90px; 
+}
+
+.container{max-width:480px;margin:auto;padding:40px 20px 20px; position: relative;} 
+
+/* SÜRƏTLİ VƏ AXICI SƏHİFƏ KEÇİDLƏRİ */
+.page { display: none; opacity: 0; }
+.page.active { 
+    display: block; 
+    opacity: 1; 
+    animation: smoothFadeIn .2s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+}
+
+@keyframes smoothFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* KART DİZAYNLARI */
+.balance-card, .ad-card, .profile-card, .vip-card{
+  background:var(--card-bg); border-radius:28px; padding:30px 20px; margin-bottom:20px;
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  text-align:center; border:1.5px solid var(--card-border);
+  box-shadow:0 8px 30px rgba(0,0,0,0.4), 0 0 15px rgba(56, 189, 248, 0.05);
+}
+
+.balance-card h3{font-size:14px;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px; font-weight: 800;}
+.balance-card .amount-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.balance-card .amount{font-size:42px;font-weight:900;color:var(--text-dark); letter-spacing: -0.5px;}
+.balance-card .currency{font-size:24px;font-weight:800;color:var(--accent); letter-spacing: 0.5px;}
+
+/* Wallet Action Tabs */
+.wallet-actions { display: flex; gap: 10px; margin-bottom: 25px; background: var(--input-bg); padding: 6px; border-radius: 20px; border: 1.5px solid var(--card-border); }
+.wallet-action-btn { flex: 1; padding: 14px 0; font-size: 15px; font-weight: 800; color: var(--text-muted); background: transparent; border: none; border-radius: 16px; cursor: pointer; transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.wallet-action-btn.active { background: var(--card-bg); color: var(--accent); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.wallet-action-btn:active:not(.active) { transform: scale(0.96); }
+
+.method-list{display:flex;justify-content:center;margin:20px 0;}
+.method{width: 100%; max-width: 250px; padding:25px 20px;border-radius:24px;background:var(--card-bg); color:var(--text-dark);text-align:center;font-weight:800;cursor:pointer;display:flex;flex-direction: column;align-items: center;justify-content: center;position: relative;overflow: hidden;box-shadow:0 8px 25px rgba(0,0,0,0.03); border: 1.5px solid var(--card-border); transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s;}
+.method:active {transform: scale(0.95);}
+.method-logo{width: 60px; height: 60px; margin-bottom: 15px;border-radius: 50%; object-fit: cover; background-color: #fff; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.08); pointer-events: none; -webkit-user-drag: none;}
+.method-text { font-size: 17px; letter-spacing: 0.2px;}
+.min-withdraw-label {position: absolute;top: 12px;right: 12px;font-size: 11px;font-weight: 800;color: var(--accent);background: var(--progress-bg);padding: 5px 10px;border-radius: 10px;}
+
+/* YENİ HEXA FORGE MINING KART DİZAYNI */
+.ad-card.mining-premium { background: radial-gradient(circle at top right, var(--card-bg), var(--input-bg)); border: 1.5px solid var(--card-border); position: relative; overflow: hidden; }
+.mining-premium::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 60%); pointer-events: none; }
+.mining-circle-wrap { position: relative; width: 180px; height: 180px; margin: 0 auto 25px; display: flex; justify-content: center; align-items: center; z-index: 2;}
+.mining-progress-ring { transform: rotate(-90deg); width: 180px; height: 180px; filter: drop-shadow(0 4px 10px rgba(56, 189, 248, 0.2)); }
+.mining-progress-ring circle { fill: transparent; stroke-width: 12; stroke-linecap: round; }
+.ring-bg { stroke: var(--progress-bg); }
+.ring-fill { stroke: var(--accent); stroke-dasharray: 502; stroke-dashoffset: 502; transition: stroke-dashoffset 1s linear; }
+.mining-status-content { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2; }
+.mining-timer { font-size: 26px; font-weight: 900; color: var(--text-dark); font-variant-numeric: tabular-nums; letter-spacing: 1px;}
+.mining-amount { font-size: 14px; font-weight: 800; color: var(--accent); margin-top: 4px; background: var(--card-bg); padding: 4px 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid var(--card-border);}
+.mining-stats { display: flex; gap: 15px; margin-bottom: 25px; z-index: 2; position: relative;}
+.mining-stat-box { flex: 1; background: var(--card-bg); border-radius: 20px; padding: 15px 12px; border: 1.5px solid var(--card-border); display: flex; flex-direction: column; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);}
+.mining-stat-box span { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.mining-stat-box strong { font-size: 17px; font-weight: 900; color: var(--text-dark); }
+
+/* DÜYMƏLƏRİN DAHA PREMIUM GÖRÜNÜŞÜ */
+.ad-btn, .submit-btn, .task-btn.action, .vip-btn, .boost-btn, .profile-btn.btn-share {
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 8px 25px var(--btn-shadow) !important;
+}
+
+/* MINING ACTIONS */
+.mining-controls { display: flex; gap: 12px; width: 100%; position: relative; z-index: 2;}
+.boost-btn { padding: 0 20px; font-size: 16px; font-weight: 800; border: none; border-radius: 20px; color: white; background: linear-gradient(135deg, #F59E0B, #B45309); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 25px rgba(245, 158, 11, 0.35); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s; min-width: 90px;}
+.boost-btn:active { transform: scale(0.92); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 15px rgba(245, 158, 11, 0.2); }
+.boost-btn span { font-size: 13px; margin-top: 2px;}
+
+/* GÖREVLƏR */
+.task-list { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+.task-item { background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 24px; padding: 25px 20px; position: relative; text-align: left; transition: background-color 0.4s, border-color 0.4s;}
+.task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.task-title { font-size: 17px; font-weight: 800; display: flex; align-items: center; gap: 12px; color: var(--text-dark); }
+.task-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 14px; color: white; background: linear-gradient(135deg, var(--btn-gradient-start), var(--btn-gradient-end)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 15px var(--btn-shadow);}
+.task-reward-badge { background: var(--progress-bg); color: var(--accent); padding: 6px 14px; border-radius: 12px; font-weight: 800; font-size: 14px; border: 1px solid var(--card-border);}
+.task-desc { font-size: 14px; color: var(--text-muted); font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+.task-btn { width: 100%; padding: 16px; font-size: 16px; font-weight: 800; border: none; border-radius: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s;}
+.task-btn:active:not(:disabled) {transform: scale(0.96);}
+.task-btn.action { background: linear-gradient(135deg, var(--btn-gradient-start), var(--btn-gradient-end)); color: white; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 20px var(--btn-shadow); }
+.task-btn.completed { background: var(--input-bg); color: var(--accent); cursor: not-allowed; box-shadow: none !important; border: 1px solid var(--card-border) !important; }
+.task-btn.waiting { background: var(--progress-bg) !important; color: var(--accent) !important; cursor: wait !important; box-shadow: none !important; border: 1px solid var(--card-border) !important;}
+
+/* GPU MARKET CARDS */
+.vip-card { position: relative; overflow: hidden; padding: 40px 20px 25px; text-align: left; }
+.gift-badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(135deg, #EF4444, #B91C1C);
+    color: #FFF;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 900;
+    padding: 6px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.2);
+    z-index: 10;
+}
+.vip-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.vip-title { font-size: 20px; font-weight: 900; color: var(--text-dark); display: flex; align-items: center; gap: 10px; }
+.vip-title i { color: #F59E0B; }
+.vip-price { font-size: 16px; font-weight: 800; color: var(--accent); background: var(--progress-bg); padding: 8px 14px; border-radius: 14px; border: 1px solid var(--card-border);}
+.vip-features { list-style: none; padding: 0; margin-bottom: 25px; }
+.vip-features li { font-size: 15px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+.vip-features li i { color: #22C55E; width: 20px; height: 20px; }
+.vip-btn { width: 100%; padding: 18px; font-size: 16px; font-weight: 800; border: none; border-radius: 20px; cursor: pointer; color: white; background: linear-gradient(135deg, #F59E0B, #B45309); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 25px rgba(245, 158, 11, 0.35); transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px;}
+.vip-btn:active:not(:disabled) { transform: scale(0.96); box-shadow: none;}
+.vip-btn.active-vip { background: var(--input-bg); color: #22C55E; cursor: not-allowed; box-shadow: none !important; border: 1.5px solid #22C55E !important; }
+#marketAlert { margin-bottom: 20px; display: none; }
+
+.stats{display:flex;justify-content:space-between;margin-top:5px; gap: 12px;}
+.stat{background:var(--input-bg);border-radius:14px;padding:12px; flex: 1; border: 1.5px solid var(--card-border); text-align: center;}
+.stat span{display:block;font-size:16px;font-weight:900;color:var(--text-dark); margin-bottom: 2px;}
+.stat label{font-size:11px;color:var(--text-muted);font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
+
+.progress{height:12px;background:var(--input-bg);border-radius:12px;overflow:hidden;margin-top:10px; margin-bottom:10px; border: 1.5px solid var(--card-border);}
+.progress-fill{height:100%;background:linear-gradient(90deg, var(--btn-gradient-start), var(--btn-gradient-end));width:0%;transition:width .8s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 12px;} 
+
+.ad-btn{flex: 1; padding:18px;font-size:16px;font-weight:800;border:none;border-radius:20px;color:var(--text-light);cursor:pointer;background:linear-gradient(135deg,var(--btn-gradient-start),var(--btn-gradient-end));box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 25px var(--btn-shadow);position: relative; overflow: hidden; display:flex; align-items:center; justify-content:center; transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s, background 0.3s;}
+.ad-btn:active:not(:disabled) {transform: scale(0.96);}
+.ad-btn.waiting { background: var(--input-bg) !important; color: var(--accent) !important; cursor: not-allowed; box-shadow: none !important; border: 1.5px solid var(--card-border) !important; }
+.ad-btn-content { position: relative; z-index: 2; display: flex; align-items:center; gap: 10px;}
+
+#msg {margin-top: 10px; font-size: 13px;font-weight: 700; padding: 0;color: #EF4444;}
+#adRewardNotificationContainer { position: relative; height: 0; overflow: visible; }
+.reward-msg {position: absolute;top: -15px; left: 50%;transform: translateX(-50%) translateY(-100%); background: #FFFFFF; color: #0F172A;padding: 12px 24px;border-radius: 100px;box-shadow: 0 10px 25px rgba(255,255,255,0.1);font-weight: 800;font-size: 14px;opacity: 0;z-index: 100; white-space: nowrap;transition: opacity 0.3s ease-out, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.1);}
+.reward-msg.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* --- TAM YENİLƏNMİŞ VƏ SÜRƏTLİ MENU --- */
+.menu {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 420px;
+    display: flex;
+    justify-content: space-between;
+    background: var(--menu-bg);
+    padding: 10px 12px;
+    border-radius: 30px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    z-index: 999;
+    border: 1.5px solid var(--card-border);
+}
+
+.menu button {
+    flex: 1;
+    margin: 0 2px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 54px;
+    position: relative;
+    border-radius: 20px;
+    transition: transform 0.1s ease;
+}
+
+.menu button:active:not(.active) { transform: scale(0.92); }
+
+.menu button::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--progress-bg);
+    border-radius: 18px;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: -1;
+}
+
+.menu button.active::before { opacity: 1; transform: scale(1); }
+
+.menu button .nav-icon { width: 24px; height: 24px; margin-bottom: 2px; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); stroke-width: 2px; }
+.menu button .nav-text { font-size: 11px; font-weight: 600; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+.menu button.active { color: var(--accent); pointer-events: none; }
+.menu button.active .nav-icon { stroke-width: 2.5px; transform: translateY(-2px); filter: drop-shadow(0 2px 5px rgba(56, 189, 248, 0.3)); }
+.menu button.active .nav-text { transform: translateY(1px); font-weight: 800; }
+
+/* --- YENİ PROFİL SƏHİFƏSİ --- */
+.profile-header { display: flex; align-items: center; justify-content: flex-start; flex-direction: row; margin-bottom: 30px; gap: 15px;}
+.profile-avatar { width: 64px; height: 64px; background: linear-gradient(135deg, var(--btn-gradient-start), var(--btn-gradient-end)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 10px 25px var(--btn-shadow); position: relative; border: 3px solid var(--card-bg); flex-shrink: 0; pointer-events: none; -webkit-touch-callout: none; -webkit-user-select: none;}
+.profile-avatar .default-icon { width: 32px; height: 32px; stroke-width: 2px;}
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none; }
+.profile-avatar.has-image img { display: block; }
+.profile-avatar.has-image .default-icon { display: none; }
+.profile-info { display: flex; flex-direction: column; align-items: flex-start;}
+.profile-name { font-size: 20px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px; }
+.profile-id { font-size: 12px; font-weight: 700; color: var(--accent); background: var(--progress-bg); padding: 4px 12px; border-radius: 10px; border: 1px solid var(--card-border);}
+
+.settings-list { text-align: left; background: var(--input-bg); border-radius: 24px; padding: 10px 20px; margin-bottom: 25px; border: 1.5px solid var(--card-border); }
+.setting-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1.5px solid var(--card-border); }
+.setting-item:last-child { border-bottom: none; }
+.setting-info { display: flex; align-items: center; gap: 15px; font-weight: 700; font-size: 15px; color: var(--text-dark); }
+.setting-icon { display: flex; align-items: center; justify-content: center; background: var(--card-bg); width: 38px; height: 38px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); border: 1px solid var(--card-border);}
+.setting-icon i { width: 18px; height: 18px; color: var(--accent); }
+
+.lang-select { background: var(--card-bg); border: 1.5px solid var(--card-border); color: var(--text-dark); font-weight: 700; padding: 8px 14px; border-radius: 12px; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; appearance: none; -webkit-appearance: none; padding-right: 25px; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F8FAFC' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 8px center; background-size: 14px;}
+
+.profile-btn { width: 100%; padding: 18px; margin-bottom: 12px; border-radius: 20px; font-weight: 800; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; border: none; transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s;}
+.profile-btn:active {transform: scale(0.96);}
+.profile-btn i { width: 20px; height: 20px; }
+.btn-share { background: linear-gradient(135deg, var(--btn-gradient-start), var(--btn-gradient-end)); color: white; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 25px var(--btn-shadow); }
+
+#form, #depositFormWrap {display:none;}
+.input-field {width:100%;padding:18px;margin:10px 0;border-radius:18px;border:1.5px solid var(--card-border);background:var(--input-bg);color:var(--input-text); font-size: 15px;font-weight: 600;outline: none;transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s; font-family: 'Inter', sans-serif;}
+.input-field:focus { border-color: var(--accent); background: var(--card-bg); box-shadow: 0 0 0 4px var(--progress-bg);}
+.input-field::placeholder { color: var(--text-muted); opacity: 0.8; font-weight: 500;}
+
+.submit-btn {width:100%;padding:18px;margin-top:20px;border:none;border-radius:20px;background:linear-gradient(135deg,var(--btn-gradient-start),var(--btn-gradient-end));color:var(--text-light);font-weight:800;font-size: 16px;cursor:pointer; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 25px var(--btn-shadow); display:flex; align-items:center; justify-content:center; gap:10px; transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);}
+.submit-btn:active {transform: scale(0.96);}
+
+.fee-calc-box { font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 5px 0 15px; text-align: left; padding: 16px; background: var(--input-bg); border-radius: 16px; border: 1.5px solid var(--card-border); display: none;}
+.fee-calc-box span { color: var(--text-dark); font-weight: 800; }
+
+.alert{margin-top:15px;padding:16px;border-radius:16px;display:none; font-weight: 700; text-align: center; font-size: 14px; animation: fadeIn 0.3s ease;}
+.alert.error{background: rgba(239, 68, 68, 0.1); color:#EF4444; border: 1.5px solid rgba(239, 68, 68, 0.3);}
+.alert.success{background: rgba(34, 197, 94, 0.1); color:#22C55E; border: 1.5px solid rgba(34, 197, 94, 0.3);}
+
+.history-card { background: var(--card-bg); border-radius: 28px; padding: 30px 20px; margin-top: 30px; border: 1.5px solid var(--card-border); text-align: left;}
+.history-title { font-size: 18px; font-weight: 800; color: var(--text-dark); margin-bottom: 20px; text-align: center; }
+.history-list { display: flex; flex-direction: column; gap: 12px; }
+.history-item { background: var(--input-bg); padding: 16px; border-radius: 18px; border: 1.5px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; }
+.history-info { display: flex; flex-direction: column; gap: 6px; }
+.history-method { font-weight: 700; font-size: 15px; color: var(--text-dark); display: flex; align-items: center; gap: 8px;}
+.history-method img { width: 22px; height: 22px; border-radius: 50%; pointer-events: none;}
+.history-method i { color: #22C55E; }
+.history-date { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.history-status-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.history-amount { font-weight: 800; font-size: 15px; color: var(--text-dark); }
+.history-status { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 10px; background: rgba(245, 158, 11, 0.1); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.2); letter-spacing: 0.3px;}
+.history-status.completed { background: rgba(34, 197, 94, 0.1); color: #22C55E; border-color: rgba(34, 197, 94, 0.2); }
+.history-empty { text-align: center; font-size: 14px; color: var(--text-muted); padding: 30px 20px; font-weight: 600; background: var(--input-bg); border-radius: 18px; border: 1px dashed var(--card-border);}
+
+/* --- YENİ PREMIUM LOADING EKRANI --- */
+#loadingScreen { 
+    position: fixed; top: 0; left: 0; width: 100%; height: var(--tg-viewport-stable-height, 100vh); 
+    background: var(--bg-start); display: flex; flex-direction: column; justify-content: center; 
+    align-items: center; z-index: 99999; transition: opacity 0.5s ease-out; user-select: none; overflow: hidden; 
+}
+.loader-content { display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2; }
+.loader-logo { 
+    width: 95px; height: 95px; margin-bottom: 25px; 
+    animation: pulseLogo 2s infinite alternate cubic-bezier(0.16, 1, 0.3, 1); 
+    pointer-events: none; -webkit-touch-callout: none;
+    border-radius: 50%;
+}
+@keyframes pulseLogo { 
+    0% { transform: scale(1) translateY(0); filter: drop-shadow(0 10px 30px rgba(56, 189, 248, 0.3)); } 
+    100% { transform: scale(1.05) translateY(-5px); filter: drop-shadow(0 20px 40px rgba(56, 189, 248, 0.6)); } 
+}
+.loader-title { font-size: 26px; font-weight: 900; color: var(--text-dark); margin-bottom: 30px; letter-spacing: 2px; }
+.modern-spinner { width: 44px; height: 44px; border: 4px solid rgba(56, 189, 248, 0.1); border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.falling-coin { position: absolute; top: -50px; border-radius: 50%; pointer-events: none; animation: fall linear forwards; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); z-index: 1; }
+@keyframes fall { 0% { transform: translateY(-50px) rotate(0deg); } 100% { transform: translateY(120vh) rotate(360deg); } }
+
+/* YENİLƏNMİŞ PUSH BİLDİRİŞ DİZAYNI */
+#taskNotification {
+    position: fixed;
+    top: 75px; 
+    left: 50%;
+    transform: translate(-50%, -150%);
+    background: var(--menu-bg); 
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    color: var(--text-dark);
+    padding: 16px 24px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1); 
+    font-weight: 700;
+    font-size: 14px;
+    opacity: 0;
+    z-index: 10000;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    text-align: center;
+    border: 1.5px solid var(--accent); 
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    will-change: transform, opacity;
+}
+#taskNotification i {
+    color: var(--accent);
+}
+.notification-show {opacity: 1 !important;transform: translate(-50%, 0) !important; }
+.notification-hide {opacity: 0;transform: translate(-50%, -150%); }
+
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 9999; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; will-change: opacity; }
+.modal-overlay.show { display: flex; opacity: 1; }
+.share-modal { background: var(--card-bg); width: 90%; max-width: 360px; border-radius: 32px; padding: 35px 25px; box-shadow: 0 25px 50px rgba(0,0,0,0.15); border: 1.5px solid var(--card-border); transform: scale(0.95) translateY(20px); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform, opacity; text-align: center; }
+.modal-overlay.show .share-modal { transform: scale(1) translateY(0); }
+.share-modal-title { font-size: 20px; font-weight: 800; color: var(--text-dark); margin-bottom: 25px; }
+.share-btn-action { width: 100%; padding: 16px; border-radius: 20px; border: none; font-weight: 700; font-size: 15px; margin-bottom: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; color: #fff; transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);}
+.share-btn-action:active {transform: scale(0.96);}
+.share-btn-action.tg { background: linear-gradient(135deg, #2AABEE, #229ED9); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 20px rgba(34, 158, 217, 0.25); }
+.share-btn-action.wa { background: linear-gradient(135deg, #25D366, #128C7E); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 20px rgba(37, 211, 102, 0.25); }
+.share-btn-action.copy { background: var(--input-bg); color: var(--text-dark); border: 1.5px solid var(--card-border); box-shadow: none; }
+.share-btn-action.close-modal { background: transparent; color: var(--text-muted); box-shadow: none; margin-bottom: 0; margin-top: 10px; font-weight: 700;}
+.share-btn-action.close-modal:hover { color: var(--text-dark); }
+</style>
+</head>
+<body id="body">
+
+<script>
+const APP_VERSION = 'v10_hexa_forge_hxfg'; 
+if (localStorage.getItem('app_version') !== APP_VERSION) {
+    localStorage.clear();
+    localStorage.setItem('app_version', APP_VERSION);
+}
+
+function safeGet(k,d=0){try{return JSON.parse(localStorage.getItem(k))??d;}catch{return d;}}
+function safeSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+let tgUser = null;
+let userRefId = null;
+
+if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+    tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+    userRefId = tgUser.id.toString();
+} else {
+    userRefId = localStorage.getItem('guest_ref_id');
+    if (!userRefId) {
+        userRefId = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+        localStorage.setItem('guest_ref_id', userRefId);
+    }
+}
+
+const UNIQUE_PAY_ID_KEY = `pay_uid_${userRefId}`;
+let payUid = localStorage.getItem(UNIQUE_PAY_ID_KEY);
+if (!payUid) {
+    payUid = 'UID-' + Math.floor(1000 + Math.random() * 9000); 
+    localStorage.setItem(UNIQUE_PAY_ID_KEY, payUid);
+}
+
+const LANG_KEY = 'lang_' + userRefId;
+
+let usePerformanceTime = false;
+let baseServerTime = 0;
+let basePerformanceTime = 0;
+
+async function syncServerTime() {
+    try {
+        const res = await fetch('https://worldtimeapi.org/api/timezone/Europe/Moscow', { cache: 'no-store' });
+        if (res.ok) {
+            const data = await res.json();
+            baseServerTime = new Date(data.datetime).getTime();
+            basePerformanceTime = performance.now();
+            usePerformanceTime = true;
+            return;
+        }
+    } catch(e) {}
+    
+    try {
+        const res2 = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Europe/Moscow', { cache: 'no-store' });
+        if (res2.ok) {
+            const data2 = await res2.json();
+            baseServerTime = new Date(data2.dateTime).getTime();
+            basePerformanceTime = performance.now();
+            usePerformanceTime = true;
+            return;
+        }
+    } catch(e2) {}
+}
+
+function getTrueTime() {
+    if (usePerformanceTime) {
+        return baseServerTime + (performance.now() - basePerformanceTime);
+    }
+    return Date.now(); 
+}
+</script>
+
+<div id="loadingScreen" oncontextmenu="return false;">
+    <div class="loader-content">
+        <img src="https://i.postimg.cc/rF8rWwGK/file-00000000c83071f4949d0bee10ffe171.png" class="loader-logo" draggable="false" alt="Hexa Forge">
+        <div class="loader-title">HEXA FORGE</div>
+        <div class="modern-spinner"></div>
+    </div>
+</div>
+
+<div id="taskNotification" class="notification-hide">
+    <i data-lucide="check-circle-2" style="width: 20px; height: 20px;"></i>
+    <span id="taskNotificationText"></span>
+</div>
+
+<div class="container">
+  
+  <div id="adsPage" class="page active">
+    <div class="balance-card">
+      <h3 data-translate-key="yourBalance">Your Balance</h3>
+      <div class="amount-wrap">
+          <div class="amount"><span id="balance">0.00</span></div>
+          <div class="currency">HXFG</div>
+      </div>
+    </div>
+    
+    <div class="ad-card mining-premium" id="miningCard">
+        <h2 data-translate-key="miningTitle" style="margin-bottom: 25px; font-weight: 900; font-size: 22px; position:relative; z-index:2;">Hexa Mining</h2>
+        
+        <div class="mining-circle-wrap">
+            <svg class="mining-progress-ring">
+                <circle class="ring-bg" cx="90" cy="90" r="80"></circle>
+                <circle class="ring-fill" id="miningRing" cx="90" cy="90" r="80"></circle>
+            </svg>
+            <div class="mining-status-content">
+                <div id="miningTimer" class="mining-timer">08:00:00</div>
+                <div id="miningAmountText" class="mining-amount">+10.00 HXFG</div>
+            </div>
+        </div>
+
+        <div class="mining-stats">
+            <div class="mining-stat-box">
+                <span data-translate-key="dailyProfit">Daily</span>
+                <strong id="dailyMiningProfit">30.00 HXFG</strong>
+            </div>
+            <div class="mining-stat-box">
+                <span data-translate-key="cycleReward">Per 8h</span>
+                <strong id="cycleMiningReward">10.00 HXFG</strong>
+            </div>
+        </div>
+
+        <div class="mining-controls">
+            <button id="miningBtn" class="ad-btn" onclick="handleMiningAction()">
+                <span class="ad-btn-content">
+                    <i data-lucide="zap" style="width:20px;height:20px;"></i>
+                    <span id="miningBtnText" data-translate-key="startMining">Start Mining</span>
+                </span>
+            </button>
+            <button class="boost-btn" onclick="goToMarket()">
+                <i data-lucide="rocket" style="width:22px;height:22px;"></i>
+                <span data-translate-key="boostMining">Boost</span>
+            </button>
+        </div>
+    </div>
+  </div>
+
+  <div id="marketPage" class="page">
+    <div class="balance-card">
+      <h3 data-translate-key="yourBalance">Your Balance</h3>
+      <div class="amount-wrap">
+          <div class="amount"><span id="balance4">0.00</span></div>
+          <div class="currency">HXFG</div>
+      </div>
+    </div>
+
+    <div id="marketAlert" class="alert"></div>
+
+    <div class="vip-card">
+        <div class="gift-badge" data-translate-key="gpuGift1">+3000 HXFG Gift</div>
+        <div class="vip-header">
+            <div class="vip-title"><i data-lucide="cpu"></i> Hexa Miner V1</div>
+            <div class="vip-price">15 TON</div>
+        </div>
+        <ul class="vip-features">
+            <li><i data-lucide="check-circle"></i> <span data-translate-key="gpuReward1">Daily 1000 HXFG</span></li>
+            <li><i data-lucide="check-circle"></i> <span data-translate-key="gpuDays1">Active for 21 Days</span></li>
+            <li><i data-lucide="check-circle"></i> <span data-translate-key="gpuBenefit">Boosted Mining Speed</span></li>
+        </ul>
+        <button id="gpu1Btn" class="vip-btn" onclick="buyGpu(1, 15, 21)"><i data-lucide="shopping-cart"></i> <span data-translate-key="buyGpuBtn">Buy Miner</span></button>
+    </div>
+
+    <div class="vip-card">
+        <div class="gift-badge" data-translate-key="gpuGift2">+7000 HXFG Gift</div>
+        <div class="vip-header">
+            <div class="vip-title"><i data-lucide="cpu"></i> Hexa Miner V2</div>
+            <div class="vip-price">40 TON</div>
+        </div>
+        <ul class="vip-features">
+            <li><i data-lucide="check-circle"></i> <span data-translate-key="gpuReward2">Daily 2500 HXFG</span></li>
+            <li><i data-lucide="check-circle"></i> <span data-translate-key="gpuDays2">Active for 23 Days</span></li>
+            <li><i data-lucide="check-circle"></i> <span data-translate-key="gpuBenefit">Boosted Mining Speed</span></li>
+        </ul>
+        <button id="gpu2Btn" class="vip-btn" onclick="buyGpu(2, 40, 23)"><i data-lucide="shopping-cart"></i> <span data-translate-key="buyGpuBtn">Buy Miner</span></button>
+    </div>
+
+    <div class="vip-card" style="border-color: #F59E0B; box-shadow: 0 8px 30px rgba(245, 158, 11, 0.1);">
+        <div class="gift-badge" data-translate-key="gpuGift3">+10000 HXFG Gift</div>
+        <div class="vip-header">
+            <div class="vip-title" style="color: #F59E0B;"><i data-lucide="zap"></i> Hexa Miner V3 Pro</div>
+            <div class="vip-price">75 TON</div>
+        </div>
+        <ul class="vip-features">
+            <li><i data-lucide="check-circle"></i> <span data-translate-key="gpuReward3">Daily 5000 HXFG</span></li>
+            <li><i data-lucide="check-circle"></i> <span data-translate-key="gpuDays3">Active for 25 Days</span></li>
+            <li><i data-lucide="check-circle"></i> <span data-translate-key="gpuBenefit">Boosted Mining Speed</span></li>
+        </ul>
+        <button id="gpu3Btn" class="vip-btn" onclick="buyGpu(3, 75, 25)"><i data-lucide="shopping-cart"></i> <span data-translate-key="buyGpuBtn">Buy Miner</span></button>
+    </div>
+
+    <div class="vip-card" style="border-color: #8B5CF6; box-shadow: 0 8px 30px rgba(139, 92, 246, 0.1);">
+        <div class="gift-badge" data-translate-key="gpuGift4">+20000 HXFG Gift</div>
+        <div class="vip-header">
+            <div class="vip-title" style="color: #8B5CF6;"><i data-lucide="flame"></i> Hexa Miner V4 Ultra</div>
+            <div class="vip-price">200 TON</div>
+        </div>
+        <ul class="vip-features">
+            <li><i data-lucide="check-circle"></i> <span data-translate-key="gpuReward4">Daily 12000 HXFG</span></li>
+            <li><i data-lucide="check-circle"></i> <span data-translate-key="gpuDays4">Active for 30 Days</span></li>
+            <li><i data-lucide="check-circle"></i> <span data-translate-key="gpuBenefit">Boosted Mining Speed</span></li>
+        </ul>
+        <button id="gpu4Btn" class="vip-btn" onclick="buyGpu(4, 200, 30)" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 25px rgba(139, 92, 246, 0.35);"><i data-lucide="shopping-cart"></i> <span data-translate-key="buyGpuBtn">Buy Miner</span></button>
+    </div>
+  </div>
+  
+  <div id="tasksPage" class="page">
+    <div class="balance-card">
+      <h3 data-translate-key="yourBalance">Your Balance</h3>
+      <div class="amount-wrap">
+          <div class="amount"><span id="balance3">0.00</span></div>
+          <div class="currency">HXFG</div>
+      </div>
+    </div>
+
+    <div class="task-list">
+        
+        <div class="task-item">
+            <div id="adRewardNotificationContainer"></div> 
+            <div class="task-header">
+                <div class="task-title">
+                    <div class="task-icon" style="background: linear-gradient(135deg, #10B981, #047857);"><i data-lucide="play-circle" style="width:20px;height:20px;"></i></div>
+                    <span data-translate-key="dailyAdsHeader">Daily Ads</span>
+                </div>
+                <div class="task-reward-badge">+1 HXFG</div>
+            </div>
+            <div class="task-desc">
+                <div class="stats" style="margin-top:0;">
+                    <div class="stat" style="padding:8px;"><span id="adsCount" style="font-size:14px;">0</span><label data-translate-key="watched">Watched</label></div>
+                    <div class="stat" style="padding:8px;"><span data-translate-key="maxCount" style="font-size:14px;">50</span><label data-translate-key="maximum">Max</label></div>
+                </div>
+                <div class="progress" style="margin-top: 15px;"><div class="progress-fill" id="progress"></div></div>
+            </div>
+            <button id="adBtn" class="task-btn action" style="background: linear-gradient(135deg, #10B981, #047857); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 20px rgba(16, 185, 129, 0.3);">
+                <span class="ad-btn-content">
+                    <i data-lucide="play" style="width:20px;height:20px;"></i>
+                    <span data-translate-key="watchAd">Watch Ad</span>
+                </span>
+            </button>
+            <div id="msg" style="text-align: center;"></div>
+        </div>
+
+        <div class="task-item">
+            <div class="task-header">
+                <div class="task-title">
+                    <div class="task-icon"><i data-lucide="users" style="width:20px;height:20px;"></i></div>
+                    <span data-translate-key="joinCommunityTitle">Join Community</span>
+                </div>
+                <div class="task-reward-badge" id="taskJoinRewardBadge">50 HXFG</div>
+            </div>
+            <div class="task-desc" data-translate-key="joinCommunityDesc">Join our official community channel and earn!</div>
+            <button id="joinBtn" class="task-btn action">
+                <i data-lucide="send" style="width:20px;height:20px;"></i>
+                <span data-translate-key="joinBtnText">Join Channel</span>
+            </button>
+        </div>
+    </div>
+  </div>
+  
+  <div id="walletPage" class="page">
+    <div class="balance-card">
+      <h3 data-translate-key="yourBalance">Your Balance</h3>
+      <div class="amount-wrap">
+          <div class="amount"><span id="balance2">0.00</span></div>
+          <div class="currency">HXFG</div>
+      </div>
+    </div>
+
+    <div id="ton-connect-btn" style="display: flex; justify-content: center; margin-bottom: 25px;"></div>
+    
+    <div class="wallet-actions">
+        <button id="btnDepositTab" class="wallet-action-btn active" data-translate-key="depositTitleTab">Deposit</button>
+        <button id="btnWithdrawTab" class="wallet-action-btn" data-translate-key="withdrawTitleTab">Withdrawal</button>
+    </div>
+
+    <div id="depositSection">
+        <div id="depositFormWrap" style="display:block;">
+            <p style="text-align:center; color:var(--text-muted); font-size: 14px; font-weight: 500; margin-bottom: 15px;" data-translate-key="depositInfo">Deposit TON to get HXFG (1 TON = 1000 HXFG).</p>
+            <input id="depositAmount" class="input-field" type="text" inputmode="decimal" placeholder="Amount (Min 0.1 TON)">
+            
+            <button id="confirmDepositBtn" class="submit-btn">
+                <i data-lucide="arrow-down-circle"></i>
+                <span data-translate-key="depositActionBtn">Deposit TON</span>
+            </button>
+            <div id="depositAlert" class="alert"></div>
+        </div>
+    </div>
+
+    <div id="withdrawSection" style="display:none;">
+        <div id="methodsContainer">
+            <h2 style="text-align:center;margin-bottom:8px;color:var(--text-dark);font-weight:800; font-size:20px;" data-translate-key="withdrawTitle">Withdrawal</h2>
+            <p style="text-align:center; color:var(--text-muted); font-size: 14px; font-weight: 500; margin-bottom: 25px;" data-translate-key="selectMethod">Select withdrawal method</p>
+            
+            <div class="method-list" id="methods">
+              <div class="method" data-type="hxfg">
+                  <img src="https://i.postimg.cc/rF8rWwGK/file-00000000c83071f4949d0bee10ffe171.png" alt="HXFG" class="method-logo" draggable="false">
+                  <span class="method-text">HXFG Token</span>
+                  <span class="min-withdraw-label" data-translate-key="minTonLabel">Min: {min} HXFG</span>
+              </div>
+            </div>
+        </div>
+
+        <div id="form">
+          <button id="backBtn" style="background:var(--input-bg); border:1.5px solid var(--card-border); color:var(--text-dark); font-weight:700; font-size:14px; border-radius: 16px; padding: 12px 20px; width: max-content; margin: 0 0 25px 0; box-shadow: none;">
+            <i data-lucide="arrow-left" style="width:18px;height:18px;"></i>
+            <span data-translate-key="back">Back</span>
+          </button>
+          
+          <h3 style="margin-bottom: 18px; font-weight: 800; color: var(--text-dark); font-size: 18px;" data-translate-key="withdrawHxfgTitle">Withdraw HXFG</h3>
+          
+          <input id="details" class="input-field" placeholder="Your TON Wallet Address" type="text">
+          <input id="amount" class="input-field" type="text" inputmode="decimal" placeholder="Amount (Min {min} HXFG)">
+          
+          <div id="feeCalcBox" class="fee-calc-box">
+              <span style="color:var(--text-muted); font-weight:500;" data-translate-key="feeText">Network Fee (5%):</span> <span id="feeAmount">0.00</span> HXFG<br>
+              <span style="color:var(--text-muted); font-weight:500;" data-translate-key="receiveText">You will receive:</span> <span id="receiveAmount">0.00</span> HXFG
+          </div>
+
+          <button id="withdrawBtn" class="submit-btn">
+            <i data-lucide="arrow-up-circle"></i>
+            <span data-translate-key="withdraw">Withdraw</span>
+          </button>
+          <div id="alert" class="alert"></div>
+        </div>
+    </div>
+
+    <div class="history-card" id="historyCard">
+        <h3 class="history-title" data-translate-key="withdrawHistory">Transaction History</h3>
+        <div class="history-list" id="historyList"></div>
+    </div>
+  </div>
+
+  <div id="profilePage" class="page">
+    <div class="profile-card" id="profileMainView">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i data-lucide="hexagon" class="default-icon"></i>
+                <img id="profileImage" src="" alt="Profile" draggable="false">
+            </div>
+            <div class="profile-info">
+                <div class="profile-name" id="displayUsername" data-translate-key="guestUser">User</div>
+                <div class="profile-id">ID: <span id="displayUserId"></span></div>
+            </div>
+        </div>
+
+        <div class="settings-list">
+            <div class="setting-item">
+                <div class="setting-info">
+                    <span class="setting-icon"><i data-lucide="globe"></i></span>
+                    <span data-translate-key="language">Language</span>
+                </div>
+                <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
+                    <option value="en">EN</option>
+                    <option value="tr">TR</option>
+                    <option value="ru">RU</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="profile-btn btn-share" onclick="openShareModal()">
+            <i data-lucide="user-plus"></i> <span data-translate-key="shareBtn">Invite Friends</span>
+        </button>
+    </div>
+  </div>
+</div>
+
+<div class="menu">
+  <button onclick="showPage('adsPage',this)" class="active" data-page-id="adsPage">
+    <i data-lucide="house" class="nav-icon"></i> <span class="nav-text" data-translate-key="home">Home</span>
+  </button>
+  <button onclick="showPage('marketPage',this)" data-page-id="marketPage">
+    <i data-lucide="shopping-cart" class="nav-icon"></i> <span class="nav-text" data-translate-key="market">Market</span>
+  </button>
+  <button onclick="showPage('tasksPage',this)" data-page-id="tasksPage">
+    <i data-lucide="layout-list" class="nav-icon"></i> <span class="nav-text" data-translate-key="tasks">Tasks</span>
+  </button>
+  <button onclick="showPage('walletPage',this)" data-page-id="walletPage">
+    <i data-lucide="wallet" class="nav-icon"></i> <span class="nav-text" data-translate-key="wallet">Wallet</span>
+  </button>
+  <button onclick="showPage('profilePage',this)" data-page-id="profilePage">
+    <i data-lucide="user" class="nav-icon"></i> <span class="nav-text" data-translate-key="profile">Profile</span>
+  </button>
+</div>
+
+<div class="modal-overlay" id="shareModalOverlay">
+    <div class="share-modal">
+        <div class="share-modal-title" data-translate-key="shareTitle">Invite Friends</div>
+        <button class="share-btn-action tg" onclick="shareOnTelegramAction()"><i data-lucide="send" style="width:18px; height:18px;"></i> <span data-translate-key="shareTelegram">Share on Telegram</span></button>
+        <button class="share-btn-action wa" onclick="shareOnWhatsappAction()"><i data-lucide="message-circle" style="width:18px; height:18px;"></i> <span data-translate-key="shareWhatsapp">Share on WhatsApp</span></button>
+        <button class="share-btn-action copy" onclick="copyRefLinkAction()"><i data-lucide="copy" style="width:18px; height:18px;"></i> <span data-translate-key="copyLink">Copy Link</span></button>
+        <button class="share-btn-action close-modal" onclick="closeShareModal()"><span data-translate-key="close">Close</span></button>
+    </div>
+</div>
+
+<script>
+lucide.createIcons();
+
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+    manifestUrl: 'https://hexaforgeapp.github.io/hexaforge/tonconnect-manifest.json',
+    buttonRootId: 'ton-connect-btn'
+});
+
+tonConnectUI.onStatusChange(wallet => {
+    const detailsInput = document.getElementById('details');
+    if (wallet && wallet.account && wallet.account.address) {
+        detailsInput.value = wallet.account.address;
+    } else {
+        detailsInput.value = ''; 
+    }
+});
+
+let adManager = null;
+if (window.Adsgram) { adManager = window.Adsgram.init({ blockId: "int-29460" }); }
+
+function safeRemove(k){try{localStorage.removeItem(k);}catch(e){}}
+
+const USERNAME_KEY = `user_profile_name_${userRefId}`;
+const PROFILE_PIC_KEY = `user_profile_pic_${userRefId}`;
+
+if (tgUser) {
+    let fullName = tgUser.first_name;
+    if (tgUser.last_name) { fullName += " " + tgUser.last_name; }
+    localStorage.setItem(USERNAME_KEY, fullName);
+    if (tgUser.photo_url) { localStorage.setItem(PROFILE_PIC_KEY, tgUser.photo_url); }
+}
+const userRefLink = `https://t.me/hexa_forgebot?startapp=${userRefId}`;
+const MAIN_WALLET_ADDRESS = "UQDXI725B04mSj15kHjQ8w35gK0JNRwsjgYFAG1BIASw1dLx";
+
+const MAX_ADS_PER_DAY = 50;
+const AD_REWARD = 1; 
+const TASK_REWARD = 50;
+const FEE_PERCENT = 0.05;
+
+const BAL_KEY = `bal_hxfg_${userRefId}`;
+const COUNT_KEY = `cnt_hxfg_${userRefId}`;
+const TOTAL_ADS_KEY = `total_ads_hxfg_${userRefId}`;
+const HAS_DEPOSITED_KEY = `has_dep_hxfg_${userRefId}`;
+const JOIN_COMMUNITY_KEY = `joined_hxfg_community_${userRefId}`;
+const REWARD_MSG_KEY = `rewardMsgExpire_hxfg_${userRefId}`;
+const HISTORY_KEY = `withdraw_history_hxfg_${userRefId}`;
+const MAX_MIN_WITHDRAW_KEY = `max_min_withdraw_hxfg_${userRefId}`;
+
+let maxMinWithdraw = parseFloat(safeGet(MAX_MIN_WITHDRAW_KEY, 3000)); 
+const GPU_LEVEL_KEY = `gpu_level_${userRefId}`;
+const GPU_EXPIRY_KEY = `gpu_expiry_${userRefId}`;
+
+let bal = parseFloat(safeGet(BAL_KEY, 0.00)); 
+let cnt = parseInt(safeGet(COUNT_KEY, 0));
+let totalAdsWatched = parseInt(safeGet(TOTAL_ADS_KEY, 0));
+let hasDeposited = safeGet(HAS_DEPOSITED_KEY, false);
+
+let currentGpuLevel = safeGet(GPU_LEVEL_KEY, 0);
+let gpuExpiry = safeGet(GPU_EXPIRY_KEY, 0);
+
+let withdrawHistory = safeGet(HISTORY_KEY, []);
+
+let currentLang = localStorage.getItem(LANG_KEY);
+if (!currentLang || !['en', 'tr', 'ru'].includes(currentLang)) {
+    currentLang = 'en'; 
+    localStorage.setItem(LANG_KEY, currentLang);
+}
+document.getElementById('langSelect').value = currentLang;
+
+const TRANSLATIONS = {
+    'en': {
+        yourBalance: 'Your Balance', miningTitle: 'Hexa Mining', dailyProfit: 'Daily Profit', cycleReward: 'Per 8 Hours', startMining: 'Start Mining', miningInProgress: 'Mining...', claimMining: 'Claim HXFG', boostMining: 'Boost',
+        dailyAdsHeader: 'Daily Ads', watched: 'Watched', maximum: 'Max', maxCount: '50', progressText: 'Progress:', watchAd: 'Watch Ad', watching: '⏳ Watching...', adLimitReached: '📣 Daily limit reached!', rewardAddedConfirmed: (r) => `✅ ${r} added!`, wait: '⏳ Wait {s}s', joinCommunityTitle: 'Join Community', joinCommunityDesc: 'Join our official community channel and earn!', joinBtnText: 'Join Channel', completed: 'Completed',
+        depositTitleTab: 'Deposit', withdrawTitleTab: 'Withdrawal', depositInfo: 'Deposit TON to get HXFG (1 TON = 1000 HXFG).', depositActionBtn: 'Deposit TON', placeholderDepositAmount: 'Amount (Min 0.1 TON)', minDepositText: 'Minimum deposit is 0.1 TON', depositSuccess: '✅ Deposit transaction sent! Balance updated.', connectWalletFirst: 'Please connect wallet first.', txFailed: 'Transaction failed or cancelled.',
+        withdrawTitle: 'Withdrawal', selectMethod: 'Select withdrawal method', minTonLabel: 'Min: {min} HXFG', back: 'Back', withdrawHxfgTitle: 'Withdraw HXFG', withdraw: 'Withdraw', feeText: 'Network Fee (5%):', receiveText: 'You will receive:', methodError: 'Select a method', detailsError: 'Enter valid TON address', amountError: 'Enter correct amount', minAmount: 'Minimum withdrawal is {min} HXFG', balanceError: 'Insufficient balance', withdrawSuccess: '✅ Withdrawal requested! It will be processed soon.', withdrawDepositCondition: 'You must watch 1000 ads to withdraw after a deposit! (Watched: {count}/1000)',
+        home: 'Home', tasks: 'Tasks', wallet: 'Wallet', profile: 'Profile', placeholderDetails_ton: 'Your TON Wallet Address', placeholderAmount: 'Amount (Min {min} HXFG)', taskSuccess: (r) => `✅ Task Completed! ${r} added.`, guestUser: 'User', language: 'Language', withdrawHistory: 'Transaction History', pending: 'Pending', emptyHistory: 'History is empty', shareBtn: 'Invite Friends', shareTitle: 'Invite Friends', shareTelegram: 'Share on Telegram', shareWhatsapp: 'Share on WhatsApp', copyLink: 'Copy Link', linkCopied: '✅ Link copied!', close: 'Close',
+        shareMsg: "🚀 Start Mining with Hexa Forge Simple, Fast & Rewarding!\n\n⛏️ Mine HXFG coins anytime, anywhere with an easy and smooth experience.\n📺 Watch ads, complete simple tasks, and grow your balance daily.\n\n💎 Real rewards system\n🎯 Daily earning opportunities\n⚡ Fast, beginner-friendly mining process\n🔥 Boost your earnings step by step\n\nWhether you're new to mining or already experienced, Hexa Forge makes earning easier than ever.\n\n👇 Join now and start mining today!\n\n🔗 {LINK}", depositText: 'Deposit',
+        market: 'Market', gpuReward1: 'Daily 1000 HXFG', gpuDays1: 'Active for 21 Days', gpuReward2: 'Daily 2500 HXFG', gpuDays2: 'Active for 23 Days', gpuReward3: 'Daily 5000 HXFG', gpuDays3: 'Active for 25 Days', gpuReward4: 'Daily 12000 HXFG', gpuDays4: 'Active for 30 Days', gpuBenefit: 'Boosted Mining Speed', buyGpuBtn: 'Buy Miner', activeGpu: 'Active', gpuActiveError: 'You already have an active GPU level!', gpuUpgradeError: 'You can only upgrade to a higher level Miner!', gpuGift1: '+3000 HXFG Gift', gpuGift2: '+7000 HXFG Gift', gpuGift3: '+10000 HXFG Gift', gpuGift4: '+20000 HXFG Gift', gpuSuccess: (b) => `✅ Miner purchased! Your mining is boosted and +${b} HXFG gift added.`
+    },
+    'tr': {
+        yourBalance: 'Bakiyeniz', miningTitle: 'Hexa Kazım', dailyProfit: 'Günlük', cycleReward: 'Her 8 Saatte', startMining: 'Kazıma Başla', miningInProgress: 'Kazılıyor...', claimMining: 'HXFG Topla', boostMining: 'Hızlandır',
+        dailyAdsHeader: 'Günlük Reklamlar', watched: 'İzlenen', maximum: 'Maks', maxCount: '50', progressText: 'İlerleme:', watchAd: 'Reklam İzle', watching: '⏳ İzleniyor...', adLimitReached: '📣 Günlük sınıra ulaştınız!', rewardAddedConfirmed: (r) => `✅ ${r} eklendi!`, wait: '⏳ {s}sn bekleyin', joinCommunityTitle: 'Topluluğa Katıl', joinCommunityDesc: 'Resmi topluluk kanalımıza katılın ve kazanın!', joinBtnText: 'Kanala Katıl', completed: 'Tamamlandı',
+        depositTitleTab: 'Yatırım', withdrawTitleTab: 'Çekim', depositInfo: 'TON yatırarak HXFG alın (1 TON = 1000 HXFG).', depositActionBtn: 'TON Yatır', placeholderDepositAmount: 'Miktar (Min 0.1 TON)', minDepositText: 'Minimum yatırım 0.1 TON', depositSuccess: '✅ Yatırım gönderildi! Bakiye güncellendi.', connectWalletFirst: 'Lütfen önce cüzdanı bağlayın.', txFailed: 'İşlem başarısız veya iptal edildi.',
+        withdrawTitle: 'Para Çekme', selectMethod: 'Çekim yöntemi seçin', minTonLabel: 'Min: {min} HXFG', back: 'Geri', withdrawHxfgTitle: 'HXFG Çek', withdraw: 'Çekim Yap', feeText: 'Ağ Ücreti (5%):', receiveText: 'Alacağınız:', methodError: 'Yöntem seçin', detailsError: 'Geçerli TON adresi girin', amountError: 'Miktarı doğru girin', minAmount: 'Minimum çekim {min} HXFG', balanceError: 'Yetersiz bakiye', withdrawSuccess: '✅ Çekim talebi alındı! Yakında işlenecektir.', withdrawDepositCondition: 'Yatırım yaptıktan sonra çekim yapmak için 1000 reklam izlemelisiniz! (İzlenen: {count}/1000)',
+        home: 'Ana Sayfa', tasks: 'Görevler', wallet: 'Cüzdan', profile: 'Profil', placeholderDetails_ton: 'TON Cüzdan Adresiniz', placeholderAmount: 'Miktar (Min {min} HXFG)', taskSuccess: (r) => `✅ Görev Tamamlandı! ${r} eklendi.`, guestUser: 'Kullanıcı', language: 'Dil', withdrawHistory: 'İşlem Geçmişi', pending: 'Beklemede', emptyHistory: 'Geçmiş boş', shareBtn: 'Arkadaşlarını Davet Et', shareTitle: 'Arkadaşlarını Davet Et', shareTelegram: 'Telegram ile paylaş', shareWhatsapp: 'WhatsApp ile paylaş', copyLink: 'Bağlantıyı Kopyala', linkCopied: '✅ Bağlantı kopyalandı!', close: 'Kapat',
+        shareMsg: "🚀 Hexa Forge ile Kazıma Başla Basit, Hızlı ve Kazançlı!\n\n⛏️ İstediğin zaman, istediğin yerde kolayca HXFG coin kaz.\n📺 Reklam izle, basit görevleri yap ve bakiyeni her gün büyüt.\n\n💎 Gerçek ödül sistemi\n🎯 Günlük kazanç fırsatları\n⚡ Hızlı, yeni başlayanlar için kolay kazım süreci\n🔥 Kazancını adım adım artır\n\nİster yeni başla, ister deneyimli ol, Hexa Forge ile kazanmak çok kolay.\n\n👇 Hemen katıl ve kazıma başla!\n\n🔗 {LINK}", depositText: 'Yatırım',
+        market: 'Market', gpuReward1: 'Günlük 1000 HXFG', gpuDays1: '21 Gün Aktif', gpuReward2: 'Günlük 2500 HXFG', gpuDays2: '23 Gün Aktif', gpuReward3: 'Günlük 5000 HXFG', gpuDays3: '25 Gün Aktif', gpuReward4: 'Günlük 12000 HXFG', gpuDays4: '30 Gün Aktif', gpuBenefit: 'Artırılmış Kazım Hızı', buyGpuBtn: 'Miner Al', activeGpu: 'Aktif', gpuActiveError: 'Zaten aktif bir Miner seviyeniz var!', gpuUpgradeError: 'Sadece daha yüksek bir seviye Miner alabilirsiniz!', gpuGift1: '+3000 HXFG Hediye', gpuGift2: '+7000 HXFG Hediye', gpuGift3: '+10000 HXFG Hediye', gpuGift4: '+20000 HXFG Hediye', gpuSuccess: (b) => `✅ Miner başarıyla alındı! Kazım hızınız artırıldı ve +${b} HXFG hediye eklendi.`
+    },
+    'ru': { 
+        yourBalance: 'Ваш Баланс', miningTitle: 'Hexa Майнинг', dailyProfit: 'В день', cycleReward: 'За 8 часов', startMining: 'Начать майнинг', miningInProgress: 'Майнинг...', claimMining: 'Собрать HXFG', boostMining: 'Ускорить',
+        dailyAdsHeader: 'Ежедневная Реклама', watched: 'Просмотрено', maximum: 'Макс', maxCount: '50', progressText: 'Прогресс:', watchAd: 'Смотреть Рекламу', watching: '⏳ Просмотр...', adLimitReached: '📣 Достигнут лимит!', rewardAddedConfirmed: (r) => `✅ ${r} добавлено!`, wait: '⏳ Ожидайте {s}с', joinCommunityTitle: 'Присоединиться к сообществу', joinCommunityDesc: 'Вступайте в наше официальное сообщество и зарабатывайте!', joinBtnText: 'Подписаться', completed: 'Выполнено',
+        depositTitleTab: 'Депозит', withdrawTitleTab: 'Вывод', depositInfo: 'Внесите TON для получения HXFG (1 TON = 1000 HXFG).', depositActionBtn: 'Пополнить TON', placeholderDepositAmount: 'Сумма (Мин 0.1 TON)', minDepositText: 'Минимальный депозит 0.1 TON', depositSuccess: '✅ Транзакция отправлена! Баланс обновлен.', connectWalletFirst: 'Пожалуйста, подключите кошелек.', txFailed: 'Транзакция не удалась или отменена.',
+        withdrawTitle: 'Вывод Средств', selectMethod: 'Выберите способ вывода', minTonLabel: 'Мин: {min} HXFG', back: 'Назад', withdrawHxfgTitle: 'Вывести HXFG', withdraw: 'Вывести', feeText: 'Комиссия сети (5%):', receiveText: 'Вы получите:', methodError: 'Выберите способ', detailsError: 'Введите верный TON адрес', amountError: 'Введите правильную сумму', minAmount: 'Минимальный вывод {min} HXFG', balanceError: 'Недостаточно средств', withdrawSuccess: '✅ Заявка отправлена! Будет обработана скоро.', withdrawDepositCondition: 'Для вывода после депозита нужно посмотреть 1000 реклам! (Просмотрено: {count}/1000)',
+        home: 'Главная', tasks: 'Задания', wallet: 'Кошелек', profile: 'Профиль', placeholderDetails_ton: 'Ваш TON Адрес', placeholderAmount: 'Сумма (Мин {min} HXFG)', taskSuccess: (r) => `✅ Задание выполнено! ${r} добавлено.`, guestUser: 'Пользователь', language: 'Язык', withdrawHistory: 'История транзакций', pending: 'В ожидании', emptyHistory: 'История пуста', shareBtn: 'Пригласить Друзей', shareTitle: 'Пригласить Друзей', shareTelegram: 'Поделиться в Telegram', shareWhatsapp: 'Поделиться в WhatsApp', copyLink: 'Скопировать ссылку', linkCopied: '✅ Ссылка скопирована!', close: 'Закрыть',
+        shareMsg: "🚀 Начни майнить с Hexa Forge Просто, Быстро и Выгодно!\n\n⛏️ Добывай HXFG coin в любое время и в любом месте легко и просто.\n📺 Смотри рекламу, выполняй простые задания и увеличивай свой баланс каждый день.\n\n💎 Реальная система наград\n🎯 Ежедневные возможности заработка\n⚡ Быстрый, удобный для новичков процесс майнинга\n🔥 Увеличивай свой заработок шаг за шагом\n\nНовичок вы или опытный пользователь, зарабатывать с Hexa Forge проще простого.\n\n👇 Присоединяйся и начни майнинг уже сегодня!\n\n🔗 {LINK}", depositText: 'Депозит',
+        market: 'Маркет', gpuReward1: 'В день 1000 HXFG', gpuDays1: 'Активен 21 день', gpuReward2: 'В день 2500 HXFG', gpuDays2: 'Активен 23 дня', gpuReward3: 'В день 5000 HXFG', gpuDays3: 'Активен 25 дней', gpuReward4: 'В день 12000 HXFG', gpuDays4: 'Активен 30 дней', gpuBenefit: 'Ускоренный майнинг', buyGpuBtn: 'Купить Miner', activeGpu: 'Активен', gpuActiveError: 'У вас уже есть активный Miner!', gpuUpgradeError: 'Вы можете купить только Miner более высокого уровня!', gpuGift1: '+3000 HXFG Подарок', gpuGift2: '+7000 HXFG Подарок', gpuGift3: '+10000 HXFG Подарок', gpuGift4: '+20000 HXFG Подарок', gpuSuccess: (b) => `✅ Miner успешно куплен! Ваш майнинг ускорен и добавлено +${b} HXFG в подарок.`
+    }
+};
+
+let alertTimeouts = {};
+function showAlertAutoHiding(element, message, type) {
+    element.textContent = message;
+    element.className = 'alert ' + type;
+    element.style.display = 'block';
+    
+    if (alertTimeouts[element.id]) { clearTimeout(alertTimeouts[element.id]); }
+    
+    alertTimeouts[element.id] = setTimeout(() => {
+        element.style.display = 'none';
+        delete alertTimeouts[element.id];
+    }, 4000); 
+}
+
+let isAdRunning = false; 
+let isCheckingTime = false;
+
+async function checkDailyReset() {
+    if (isCheckingTime) return;
+    isCheckingTime = true;
+    
+    const trueDateStr = new Date(getTrueTime()).toISOString().split('T')[0];
+
+    const savedDate = safeGet('moscow_reset_date_' + userRefId, null);
+    if (savedDate !== trueDateStr) {
+        cnt = 0; 
+        safeSet('moscow_reset_date_' + userRefId, trueDateStr);
+        safeSet(COUNT_KEY, cnt);
+    }
+
+    isCheckingTime = false;
+    updateUI();
+}
+
+function getMinWithdrawal() {
+    return maxMinWithdraw;
+}
+
+const MINING_START_KEY = `mining_start_${userRefId}`;
+const MINING_END_KEY = `mining_end_${userRefId}`;
+const CYCLE_MS = 8 * 60 * 60 * 1000; 
+let miningInterval;
+
+function getDailyMiningReward() {
+    if (getTrueTime() < gpuExpiry) {
+        if (currentGpuLevel === 1) return 1000.0;
+        if (currentGpuLevel === 2) return 2500.0;
+        if (currentGpuLevel === 3) return 5000.0;
+        if (currentGpuLevel === 4) return 12000.0;
+    } else {
+        if (currentGpuLevel !== 0) {
+            currentGpuLevel = 0; gpuExpiry = 0;
+            safeSet(GPU_LEVEL_KEY, 0); safeSet(GPU_EXPIRY_KEY, 0);
+            updateGpuUI();
+        }
+    }
+    return 30.0;
+}
+
+function getMiningReward() { return getDailyMiningReward() / 3; }
+
+function updateMiningUI() {
+    const now = getTrueTime();
+    const start = safeGet(MINING_START_KEY, 0);
+    const end = safeGet(MINING_END_KEY, 0);
+    const t = TRANSLATIONS[currentLang];
+    
+    const btnText = document.getElementById('miningBtnText');
+    const timerEl = document.getElementById('miningTimer');
+    const ring = document.getElementById('miningRing');
+    const miningBtn = document.getElementById('miningBtn');
+    const amountTextEl = document.getElementById('miningAmountText');
+
+    const totalReward = getMiningReward();
+    document.getElementById('dailyMiningProfit').textContent = getDailyMiningReward().toFixed(2) + ' HXFG';
+    document.getElementById('cycleMiningReward').textContent = totalReward.toFixed(2) + ' HXFG';
+
+    if (start > 0 && end > 0) {
+        if (now >= end) {
+            timerEl.textContent = "00:00:00";
+            btnText.textContent = t.claimMining;
+            ring.style.strokeDashoffset = 0; 
+            miningBtn.className = 'ad-btn';
+            miningBtn.style.background = 'linear-gradient(135deg, #10B981, #047857)'; 
+            amountTextEl.textContent = '+' + totalReward.toFixed(2) + ' HXFG'; 
+        } else {
+            const remaining = end - now;
+            const elapsed = now - start;
+            const total = end - start;
+
+            const h = Math.floor(remaining / 3600000);
+            const m = Math.floor((remaining % 3600000) / 60000);
+            const s = Math.floor((remaining % 60000) / 1000);
+            timerEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+            const percent = Math.min(1, elapsed / total);
+            ring.style.strokeDashoffset = 502 - (502 * percent);
+
+            const currentEarned = totalReward * percent;
+            amountTextEl.textContent = '+' + currentEarned.toFixed(2) + ' HXFG';
+
+            btnText.textContent = t.miningInProgress;
+            miningBtn.className = 'ad-btn waiting';
+            miningBtn.style.background = '';
+        }
+    } else {
+        timerEl.textContent = "08:00:00";
+        btnText.textContent = t.startMining;
+        ring.style.strokeDashoffset = 502;
+        miningBtn.className = 'ad-btn';
+        miningBtn.style.background = '';
+        amountTextEl.textContent = '+' + totalReward.toFixed(2) + ' HXFG';
+    }
+}
+
+function handleMiningAction() {
+    const now = getTrueTime();
+    const start = safeGet(MINING_START_KEY, 0);
+    const end = safeGet(MINING_END_KEY, 0);
+    const t = TRANSLATIONS[currentLang];
+
+    if (start > 0 && end > 0) {
+        if (now >= end) {
+            const reward = getMiningReward();
+            bal += reward;
+            safeSet(BAL_KEY, bal);
+            safeSet(MINING_START_KEY, 0);
+            safeSet(MINING_END_KEY, 0);
+            showTaskNotification(t.rewardAddedConfirmed(`<b>${reward.toFixed(2)} HXFG</b>`));
+            updateUI();
+            updateMiningUI();
+        }
+    } else {
+        safeSet(MINING_START_KEY, now);
+        safeSet(MINING_END_KEY, now + CYCLE_MS);
+        updateMiningUI();
+    }
+}
+
+function updateDynamicTexts() {
+    const t = TRANSLATIONS[currentLang];
+    const currentMinWithdraw = getMinWithdrawal();
+    document.querySelectorAll('.min-withdraw-label').forEach(el => {
+        el.innerHTML = t.minTonLabel.replace('{min}', currentMinWithdraw);
+    });
+    const amountInput = document.getElementById('amount');
+    if(amountInput) { amountInput.placeholder = t.placeholderAmount.replace('{min}', currentMinWithdraw); }
+}
+
+function updateGpuUI() {
+    const t = TRANSLATIONS[currentLang];
+    const isActive = getTrueTime() < gpuExpiry;
+    
+    [1, 2, 3, 4].forEach((level) => {
+        const btn = document.getElementById(`gpu${level}Btn`);
+        if (!btn) return;
+        if (isActive && currentGpuLevel === level) {
+            btn.className = 'vip-btn active-vip';
+            btn.innerHTML = `<i data-lucide="check-circle"></i> ${t.activeGpu}`;
+            btn.disabled = true;
+        } else {
+            btn.className = 'vip-btn';
+            btn.innerHTML = `<i data-lucide="shopping-cart"></i> ${t.buyGpuBtn}`;
+            btn.disabled = false;
+        }
+    });
+    lucide.createIcons();
+    updateDynamicTexts();
+    updateMiningUI();
+}
+
+function loadProfilePic() {
+    const pic = localStorage.getItem(PROFILE_PIC_KEY);
+    const avatar = document.querySelector('.profile-avatar');
+    const img = document.getElementById('profileImage');
+    if (pic) { img.src = pic; avatar.classList.add('has-image'); } 
+    else { avatar.classList.remove('has-image'); }
+}
+
+function loadProfile() {
+    const savedName = localStorage.getItem(USERNAME_KEY);
+    const displayEl = document.getElementById('displayUsername');
+    if (savedName) { displayEl.textContent = savedName; displayEl.removeAttribute('data-translate-key'); } 
+    else { displayEl.setAttribute('data-translate-key', 'guestUser'); applyTranslationToElement(displayEl, 'guestUser', currentLang); }
+    document.getElementById('displayUserId').textContent = userRefId;
+    loadProfilePic();
+}
+
+function openShareModal() { const overlay = document.getElementById('shareModalOverlay'); overlay.style.display = 'flex'; setTimeout(() => overlay.classList.add('show'), 10); }
+function closeShareModal() { const overlay = document.getElementById('shareModalOverlay'); overlay.classList.remove('show'); setTimeout(() => overlay.style.display = 'none', 300); }
+function shareOnTelegramAction() { window.open(`https://t.me/share/url?url=&text=${encodeURIComponent(TRANSLATIONS[currentLang].shareMsg.replace('{LINK}', userRefLink))}`, '_blank'); closeShareModal(); }
+function shareOnWhatsappAction() { window.open(`https://wa.me/?text=${encodeURIComponent(TRANSLATIONS[currentLang].shareMsg.replace('{LINK}', userRefLink))}`, '_blank'); closeShareModal(); }
+function copyRefLinkAction() {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(userRefLink).then(() => { showTaskNotification(TRANSLATIONS[currentLang].linkCopied); }).catch(err => fallbackCopyTextToClipboard(userRefLink, TRANSLATIONS[currentLang]));
+    } else { fallbackCopyTextToClipboard(userRefLink, TRANSLATIONS[currentLang]); }
+    closeShareModal();
+}
+function fallbackCopyTextToClipboard(text, t) {
+    var textArea = document.createElement("textarea"); textArea.value = text;
+    textArea.style.top = "0"; textArea.style.left = "0"; textArea.style.position = "fixed"; textArea.style.opacity = "0";
+    document.body.appendChild(textArea); textArea.focus(); textArea.select();
+    try { var successful = document.execCommand('copy'); if(successful) showTaskNotification(t.linkCopied); } catch (err) {}
+    document.body.removeChild(textArea);
+}
+
+function formatCoin(val) { return parseFloat(val).toFixed(2); }
+
+function updateUI() {
+  const formattedBal = formatCoin(bal);
+  document.getElementById('balance').textContent = formattedBal;
+  document.getElementById('balance2').textContent = formattedBal;
+  document.getElementById('balance3').textContent = formattedBal;
+  document.getElementById('balance4').textContent = formattedBal;
+  
+  const adsCountEl = document.getElementById('adsCount');
+  if(adsCountEl) adsCountEl.textContent=cnt;
+  const progressEl = document.getElementById('progress');
+  if(progressEl) progressEl.style.width=(cnt/MAX_ADS_PER_DAY*100)+'%';
+  
+  safeSet(BAL_KEY, bal); safeSet(COUNT_KEY, cnt); 
+  
+  updateTaskButtons(); updateDynamicTexts(); updateGpuUI(); updateMiningUI();
+}
+
+function renderHistory() {
+    const list = document.getElementById('historyList');
+    const t = TRANSLATIONS[currentLang];
+    list.innerHTML = '';
+    
+    if (withdrawHistory.length === 0) {
+        list.innerHTML = `<div class="history-empty">${t.emptyHistory}</div>`;
+        return;
+    }
+    
+    const reversed = [...withdrawHistory].reverse();
+    reversed.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        const d = new Date(item.date);
+        const dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        let statusText = '';
+        let statusClass = 'history-status';
+        let methodIcon = '<img src="https://i.postimg.cc/rF8rWwGK/file-00000000c83071f4949d0bee10ffe171.png" alt="HXFG" draggable="false">';
+        let amountText = '';
+
+        if(item.method === 'deposit' || item.method === 'gpu') {
+            statusText = t.completed || 'Completed';
+            statusClass += ' completed';
+            let iName = item.method === 'gpu' ? 'shopping-cart' : 'arrow-down-circle';
+            let txt = item.method === 'gpu' ? 'Hexa Miner' : (t.depositText || 'Deposit');
+            methodIcon = `<i data-lucide="${iName}"></i> ` + txt;
+            
+            if (item.method === 'deposit') {
+                amountText = `+${formatCoin(item.hxfg || (item.amount * 1000))} HXFG`;
+            } else {
+                amountText = `-${formatCoin(item.amount)} TON`;
+            }
+        } else {
+            statusText = t[item.status] || item.status;
+            methodIcon = `${methodIcon} HXFG Token`;
+            amountText = `-${formatCoin(item.amount)} HXFG`;
+        }
+
+        div.innerHTML = `
+            <div class="history-info">
+                <div class="history-method">${methodIcon}</div>
+                <div class="history-date">${dateStr}</div>
+            </div>
+            <div class="history-status-wrap">
+                <div class="history-amount">${amountText}</div>
+                <div class="history-status ${item.method==='deposit' || item.method==='gpu' ? 'completed' : ''}">${statusText}</div>
+            </div>
+        `;
+        list.appendChild(div);
+    });
+    lucide.createIcons();
+}
+
+function updateTaskButtons() {
+    const t = TRANSLATIONS[currentLang];
+    const joinBtn = document.getElementById('joinBtn');
+    if (joinBtn) {
+        if (localStorage.getItem(JOIN_COMMUNITY_KEY)){ joinBtn.className = 'task-btn completed'; joinBtn.innerHTML = `<i data-lucide="check-circle" style="width:20px;height:20px;"></i> ${t.completed}`; joinBtn.disabled = true; } 
+        else { if (!joinBtn.classList.contains('waiting')) { joinBtn.className = 'task-btn action'; joinBtn.disabled = false; joinBtn.innerHTML = `<i data-lucide="send" style="width:20px;height:20px;"></i> ${t.joinBtnText}`; } }
+    }
+    lucide.createIcons(); 
+}
+
+function applyTranslationToElement(el, key, lang) {
+    const t = TRANSLATIONS[lang];
+    if (!t) return;
+    if (typeof t[key] === 'function') {} 
+    else if (t[key]) {
+         if(el.tagName === 'INPUT') el.placeholder = t[key];
+         else el.innerHTML = t[key];
+    }
+}
+
+function applyTranslations(lang) {
+    const t = TRANSLATIONS[lang];
+    if (!t) return;
+    document.querySelectorAll('[data-translate-key]').forEach(el => {
+        applyTranslationToElement(el, el.getAttribute('data-translate-key'), lang);
+    });
+    updateTaskButtons(); loadProfile(); renderHistory(); updateDynamicTexts(); updateGpuUI();
+    const adBtnWatchSpan = document.querySelector('.ad-btn-content span[data-translate-key="watchAd"]');
+    if(adBtnWatchSpan) { if (adBtn.classList.contains('waiting')) { adBtnWatchSpan.textContent = t.watching; } else { adBtnWatchSpan.textContent = t.watchAd; } }
+}
+
+function setLang(lang) { currentLang = lang; localStorage.setItem(LANG_KEY, lang); applyTranslations(lang); calculateFee(); }
+
+const adBtn = document.getElementById('adBtn');
+const msg = document.getElementById('msg');
+
+function restoreAdBtnState() {
+    const t = TRANSLATIONS[currentLang];
+    const textSpan = adBtn.querySelector('.ad-btn-content span[data-translate-key="watchAd"]');
+    if (isAdRunning) { adBtn.classList.add('waiting'); adBtn.disabled = true; if(textSpan) textSpan.textContent = t.watching; return; }
+    if (cnt >= MAX_ADS_PER_DAY) { adBtn.classList.remove('waiting'); adBtn.disabled = true; if(textSpan) textSpan.textContent = t.watchAd; msg.textContent = t.adLimitReached; return; }
+    adBtn.classList.remove('waiting'); adBtn.disabled = false; if(textSpan) textSpan.textContent = t.watchAd; msg.textContent = '';
+}
+
+if(adBtn) {
+    adBtn.onclick = () => {
+        const t = TRANSLATIONS[currentLang];
+        
+        if (cnt >= MAX_ADS_PER_DAY) { msg.textContent = t.adLimitReached; return; }
+        if (isAdRunning || adBtn.classList.contains('waiting')) return;
+        
+        isAdRunning = true; 
+        adBtn.disabled = true; 
+        adBtn.classList.add('waiting');
+        const textSpan = adBtn.querySelector('.ad-btn-content span[data-translate-key="watchAd"]');
+        if(textSpan) textSpan.textContent = t.watching; 
+        msg.textContent = '';
+        
+        checkDailyReset();
+
+        try {
+            if (!adManager && window.Adsgram) { adManager = window.Adsgram.init({ blockId: "int-29460" }); }
+            if (adManager) { 
+                adManager.show().then((result) => { giveAdReward(t); }).catch((error) => { console.error("Adsgram error", error); resetAdBtnState(t); }); 
+            } 
+            else { console.error("Adsgram init fail"); resetAdBtnState(t); }
+        } catch(e) { console.error("Ad error", e); resetAdBtnState(t); } 
+    };
+}
+
+function giveAdReward(t) { 
+    bal += AD_REWARD; 
+    cnt++; 
+    totalAdsWatched++;
+    safeSet(TOTAL_ADS_KEY, totalAdsWatched);
+    updateUI(); 
+    showTaskNotification(t.rewardAddedConfirmed(`<b>${AD_REWARD} HXFG</b>`)); 
+    resetAdBtnState(t); 
+}
+
+function resetAdBtnState(t) { 
+    isAdRunning = false; 
+    adBtn.disabled = false; 
+    adBtn.classList.remove('waiting'); 
+    const textSpan = adBtn.querySelector('.ad-btn-content span[data-translate-key="watchAd"]'); 
+    if(textSpan) textSpan.textContent = t.watchAd; 
+    if (cnt >= MAX_ADS_PER_DAY) msg.textContent = t.adLimitReached; else msg.textContent = ''; 
+}
+
+const taskNotification = document.getElementById('taskNotification');
+const taskNotificationText = document.getElementById('taskNotificationText');
+function showTaskNotification(message) { 
+    taskNotificationText.innerHTML = message; 
+    taskNotification.classList.remove('notification-hide'); 
+    taskNotification.classList.add('notification-show'); 
+    setTimeout(() => { 
+        taskNotification.classList.remove('notification-show'); 
+        taskNotification.classList.add('notification-hide'); 
+    }, 3000); 
+}
+
+const joinBtn = document.getElementById('joinBtn');
+if (joinBtn) {
+    joinBtn.onclick = () => {
+        if (localStorage.getItem(JOIN_COMMUNITY_KEY) || joinBtn.disabled) return; 
+        const t = TRANSLATIONS[currentLang];
+        window.open('https://t.me/hexa_forge', '_blank'); 
+        joinBtn.disabled = true; joinBtn.classList.add('waiting'); 
+        joinBtn.innerHTML = `<i data-lucide="loader" style="width:20px;height:20px;"></i> ${t.wait.replace('{s}', '3')}`;
+        lucide.createIcons();
+        setTimeout(() => { bal += TASK_REWARD; safeSet(BAL_KEY, bal); localStorage.setItem(JOIN_COMMUNITY_KEY, '1'); updateUI(); showTaskNotification(t.taskSuccess(`<b>${TASK_REWARD} HXFG</b>`)); }, 3000); 
+    };
+}
+
+function showPage(id, btn){
+  if (btn.classList.contains('active')) return; 
+
+  try {
+      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+          window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+      }
+  } catch(e) {}
+
+  document.querySelectorAll('.page').forEach(p => {
+      p.classList.remove('active');
+  });
+  document.querySelectorAll('.menu button').forEach(b => b.classList.remove('active'));
+
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+
+  if (id === 'tasksPage') { updateTaskButtons(); restoreAdBtnState(); } 
+}
+
+function goToMarket() {
+    const marketMenuBtn = document.querySelector('.menu button[data-page-id="marketPage"]');
+    if(marketMenuBtn) {
+        showPage('marketPage', marketMenuBtn);
+    }
+}
+
+const btnDepositTab = document.getElementById('btnDepositTab');
+const btnWithdrawTab = document.getElementById('btnWithdrawTab');
+const depositSection = document.getElementById('depositSection');
+const withdrawSection = document.getElementById('withdrawSection');
+
+btnDepositTab.onclick = () => {
+    btnDepositTab.classList.add('active'); btnWithdrawTab.classList.remove('active');
+    depositSection.style.display = 'block'; withdrawSection.style.display = 'none';
+};
+btnWithdrawTab.onclick = () => {
+    btnWithdrawTab.classList.add('active'); btnDepositTab.classList.remove('active');
+    withdrawSection.style.display = 'block'; depositSection.style.display = 'none';
+};
+
+function restrictAmountInput(e) {
+    let val = e.target.value;
+    val = val.replace(',', '.'); 
+    val = val.replace(/[^0-9.]/g, ''); 
+    if ((val.match(/\./g) || []).length > 1) {
+        let parts = val.split('.');
+        val = parts.shift() + '.' + parts.join('');
+    }
+    if (val.startsWith('.')) { val = '0' + val; }
+    if (val.length >= 2 && val.startsWith('0') && val[1] !== '.') { val = '0.' + val.substring(1); }
+    if (val.startsWith('0.0')) { val = '0.'; }
+    if (val.includes('.')) {
+        const parts = val.split('.');
+        if (parts[1].length > 2) { val = parts[0] + '.' + parts[1].substring(0, 2); }
+    }
+    e.target.value = val;
+}
+
+const depositAmountInput = document.getElementById('depositAmount');
+depositAmountInput.addEventListener('input', restrictAmountInput);
+
+const withdrawAmountInput = document.getElementById('amount');
+withdrawAmountInput.addEventListener('input', function(e) {
+    restrictAmountInput(e);
+    calculateFee();
+});
+
+async function buyGpu(level, price, days) {
+    const t = TRANSLATIONS[currentLang];
+    const alertBox = document.getElementById('marketAlert');
+    alertBox.style.display = 'none';
+
+    if (getTrueTime() < gpuExpiry) {
+        if (level <= currentGpuLevel) {
+            showAlertAutoHiding(alertBox, t.gpuUpgradeError || 'You can only upgrade to a higher level Miner!', 'error');
+            return;
+        }
+    }
+
+    if (!tonConnectUI.connected) {
+        try { tonConnectUI.openModal(); showAlertAutoHiding(alertBox, t.connectWalletFirst, 'error'); } catch(e) {}
+        return;
+    }
+
+    try {
+        const priceNano = Math.round(price * 1e9).toString();
+        const tonweb = new window.TonWeb();
+        const cell = new tonweb.boc.Cell();
+        cell.bits.writeUint(0, 32); 
+        cell.bits.writeString(payUid); 
+        const bocBytes = await Promise.resolve(cell.toBoc());
+        const payloadStr = tonweb.utils.bytesToBase64(bocBytes);
+
+        const transaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 600,
+            messages: [{ address: MAIN_WALLET_ADDRESS, amount: priceNano, payload: payloadStr }]
+        };
+
+        await tonConnectUI.sendTransaction(transaction);
+        
+        let bonus = 0;
+        if (level === 1) bonus = 3000;
+        else if (level === 2) bonus = 7000;
+        else if (level === 3) bonus = 10000;
+        else if (level === 4) bonus = 20000;
+
+        if (bonus > 0) {
+            bal += bonus;
+            safeSet(BAL_KEY, bal);
+        }
+
+        currentGpuLevel = level;
+        gpuExpiry = getTrueTime() + (days * 24 * 60 * 60 * 1000);
+        safeSet(GPU_LEVEL_KEY, currentGpuLevel);
+        safeSet(GPU_EXPIRY_KEY, gpuExpiry);
+
+        let newMin = 3000;
+        if (level === 1) newMin = 30000;
+        else if (level === 2) newMin = 80000;
+        else if (level === 3) newMin = 175000;
+        else if (level === 4) newMin = 400000;
+
+        if (newMin > maxMinWithdraw) {
+            maxMinWithdraw = newMin;
+            safeSet(MAX_MIN_WITHDRAW_KEY, maxMinWithdraw);
+        }
+        
+        const historyItem = { method: 'gpu', amount: price, currency: 'TON', status: 'completed', date: getTrueTime() };
+        withdrawHistory.push(historyItem);
+        safeSet(HISTORY_KEY, withdrawHistory);
+        
+        updateUI();
+        
+        const successMessage = typeof t.gpuSuccess === 'function' ? t.gpuSuccess(bonus) : t.gpuSuccess;
+        showAlertAutoHiding(alertBox, successMessage, 'success');
+
+    } catch (e) {
+        console.error(e);
+        showAlertAutoHiding(alertBox, t.txFailed, 'error');
+    }
+}
+
+document.getElementById('confirmDepositBtn').onclick = async () => {
+    const t = TRANSLATIONS[currentLang];
+    const depAlert = document.getElementById('depositAlert');
+    depAlert.style.display = 'none';
+
+    if (!tonConnectUI.connected) {
+        try { tonConnectUI.openModal(); showAlertAutoHiding(depAlert, t.connectWalletFirst, 'error'); } catch(e) {}
+        return;
+    }
+
+    const amt = parseFloat(document.getElementById('depositAmount').value);
+    if (isNaN(amt) || amt < 0.1) {
+        showAlertAutoHiding(depAlert, t.minDepositText, 'error');
+        return;
+    }
+
+    try {
+        const amtNano = Math.round(amt * 1e9).toString();
+        const tonweb = new window.TonWeb();
+        const cell = new tonweb.boc.Cell();
+        cell.bits.writeUint(0, 32); 
+        cell.bits.writeString(userRefId.toString());
+        const bocBytes = await Promise.resolve(cell.toBoc());
+        const payloadStr = tonweb.utils.bytesToBase64(bocBytes);
+
+        const transaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 600,
+            messages: [{ address: MAIN_WALLET_ADDRESS, amount: amtNano, payload: payloadStr }]
+        };
+
+        await tonConnectUI.sendTransaction(transaction);
+        
+        let hxfgAmount = amt * 1000;
+        bal += hxfgAmount;
+        hasDeposited = true;
+        safeSet(HAS_DEPOSITED_KEY, true);
+        safeSet(BAL_KEY, bal);
+        updateUI();
+        
+        showAlertAutoHiding(depAlert, t.depositSuccess, 'success');
+        document.getElementById('depositAmount').value = '';
+
+        const historyItem = { method: 'deposit', amount: amt, currency: 'TON', hxfg: hxfgAmount, status: 'completed', date: getTrueTime() };
+        withdrawHistory.push(historyItem);
+        safeSet(HISTORY_KEY, withdrawHistory);
+        renderHistory();
+
+    } catch (e) {
+        console.error(e);
+        showAlertAutoHiding(depAlert, t.txFailed, 'error');
+    }
+};
+
+const methods = document.querySelectorAll('.method');
+const form = document.getElementById('form'); const details = document.getElementById('details');
+const amount = document.getElementById('amount'); const alertBox = document.getElementById('alert');
+const feeCalcBox = document.getElementById('feeCalcBox');
+const feeAmountSpan = document.getElementById('feeAmount');
+const receiveAmountSpan = document.getElementById('receiveAmount');
+let type = '';
+
+methods.forEach(m=>{
+  m.onclick=()=>{
+    type=m.dataset.type;
+    document.getElementById('methodsContainer').style.display='none'; 
+    form.style.display='block';
+    const t = TRANSLATIONS[currentLang];
+    details.placeholder = t.placeholderDetails_ton;
+    
+    const currentMinWithdraw = getMinWithdrawal();
+    amount.placeholder = t.placeholderAmount.replace('{min}', currentMinWithdraw);
+    
+    if (tonConnectUI.wallet && tonConnectUI.wallet.account && tonConnectUI.wallet.account.address) { details.value = tonConnectUI.wallet.account.address; } 
+    else { details.value = ''; }
+    amount.value=''; alertBox.style.display='none'; feeCalcBox.style.display='none';
+  };
+});
+
+document.getElementById('backBtn').onclick=()=>{ form.style.display='none'; document.getElementById('methodsContainer').style.display='block'; alertBox.style.display='none'; type=''; };
+
+function calculateFee() {
+    const amt = parseFloat(amount.value);
+    if (!isNaN(amt) && amt > 0) {
+        const fee = amt * FEE_PERCENT; const receive = amt - fee;
+        feeAmountSpan.textContent = fee.toFixed(2); receiveAmountSpan.textContent = receive.toFixed(2); feeCalcBox.style.display = 'block';
+    } else { feeCalcBox.style.display = 'none'; }
+}
+
+document.getElementById('withdrawBtn').onclick=()=>{
+  const det = details.value.trim(); const amt = parseFloat(amount.value);
+  alertBox.style.display='none'; const t = TRANSLATIONS[currentLang];
+
+  if(!type){ showAlertAutoHiding(alertBox, t.methodError, 'error'); return; }
+  if(!det){ showAlertAutoHiding(alertBox, t.detailsError, 'error'); return; }
+  if(isNaN(amt) || amt <= 0){ showAlertAutoHiding(alertBox, t.amountError, 'error'); return; }
+  
+  const currentMinWithdraw = getMinWithdrawal();
+  const EPSILON = 0.0001; 
+  if(amt < currentMinWithdraw - EPSILON){ showAlertAutoHiding(alertBox, t.minAmount.replace('{min}', currentMinWithdraw), 'error'); return; }
+  if(amt > bal + EPSILON){ showAlertAutoHiding(alertBox, t.balanceError, 'error'); return; }
+  
+  if (hasDeposited && totalAdsWatched < 1000) {
+      showAlertAutoHiding(alertBox, t.withdrawDepositCondition.replace('{count}', totalAdsWatched), 'error');
+      return;
+  }
+
+  bal = Math.max(0, bal - amt); safeSet(BAL_KEY,bal); updateUI();
+  
+  const historyItem = { method: type, amount: amt, status: 'pending', date: getTrueTime() };
+  withdrawHistory.push(historyItem); safeSet(HISTORY_KEY, withdrawHistory); renderHistory(); 
+
+  showAlertAutoHiding(alertBox, t.withdrawSuccess, 'success');
+  setTimeout(()=>{ form.style.display='none'; document.getElementById('methodsContainer').style.display='block'; alertBox.style.display='none'; type=''; }, 2500);
+};
+
+syncServerTime().then(() => {
+    checkDailyReset();
+    applyTranslations(currentLang); 
+    miningInterval = setInterval(updateMiningUI, 1000);
+});
+
+function runLoadingScreen() {
+    const container = document.getElementById('loadingScreen');
+    if(!container) return;
+    const coinSrc = "https://i.postimg.cc/rF8rWwGK/file-00000000c83071f4949d0bee10ffe171.png"; 
+    function createCoin(isInitial) {
+        const coin = document.createElement('img'); coin.src = coinSrc; coin.className = 'falling-coin';
+        coin.style.left = (Math.random() * 100) + 'vw';
+        const size = Math.random() * 20 + 10; coin.style.width = size + 'px'; coin.style.height = size + 'px';
+        const duration = Math.random() * 2 + 1.5; coin.style.animationDuration = duration + 's';
+        coin.style.opacity = (Math.random() * 0.4 + 0.2).toString();
+        if (isInitial) { coin.style.animationDelay = '-' + (Math.random() * duration) + 's'; }
+        container.appendChild(coin);
+        setTimeout(() => { if(coin.parentNode) coin.remove(); }, duration * 1000);
+    }
+    for(let i=0; i<15; i++) { createCoin(true); }
+    const coinInterval = setInterval(() => { createCoin(false); }, 200);
+    
+    setTimeout(()=>{ 
+        clearInterval(coinInterval); 
+        container.style.opacity="0"; 
+        setTimeout(()=>container.style.display="none", 500); 
+    }, 2000);
+}
+runLoadingScreen();
+
+const navMenu = document.querySelector('.menu');
+const initialWindowHeight = window.innerHeight;
+
+window.addEventListener('resize', () => {
+    if (window.innerHeight < initialWindowHeight - 100) { navMenu.style.display = 'none'; } 
+    else { navMenu.style.display = 'flex'; if(document.activeElement && document.activeElement.tagName === 'INPUT'){ document.activeElement.blur(); } }
+});
+</script>
+</body>
+</html>
